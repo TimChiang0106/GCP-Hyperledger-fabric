@@ -10,8 +10,11 @@ Referring to Hyperledger Fabric  [doc](https://hyperledger-fabric.readthedocs.io
 1. Creat a Compute Engine VM with Ubuntu.
 
  a. Name: vm-fabric
+ 
  b. Region: asia-east1, Zone: asia-east1-a
+ 
  c. Series: E2, Machine type: e2-medium
+ 
  d. Boot disk, size: 20GB, Image: Ubuntu 18.04 TLS
 
 Leave rest of setting with default.
