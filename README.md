@@ -20,17 +20,44 @@ Referring to Hyperledger Fabric  [doc](https://hyperledger-fabric.readthedocs.io
 Leave rest of setting with default.
 
 2. SSH into VM.
+
+
  a. To get the install script.
 ```
 curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh && chmod +x install-fabric.sh
 ```
-
-b. To pull the Docker containers and clone the samples repo, run one of these commands for example
-```
-./install-fabric.sh docker samples
-./install-fabric.sh d s
-```
+ b. Install Docker and Docker-compose
+ ```
+ sudo apt-get update
+ apt-get install docker
+ apt  install docker.io
+ apt  install docker-compose
+ ```
+c. To pull the Docker containers and clone the samples repo, run one of these commands for example
+ ```
+ ./install-fabric.sh docker samples
+ ./install-fabric.sh d s
+ ```
 c. Install fabric
 ```
 ./install-fabric.sh 
 ```
+
+
+4. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
