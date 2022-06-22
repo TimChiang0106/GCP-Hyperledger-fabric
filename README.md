@@ -94,8 +94,8 @@ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.exa
 | 4 | bluesoftx | x.x.x.x:11051 | org1.bluesoftx.com
 | 4 | bluesoftx | x.x.x.x:12051 | org2.bluesoftx.com
 
-| # | Parameters |
-| ------ | ------ |
+| # | Parameters | |
+| ------ | ------ | ------|
 |1| Channel| bluesoftxchannel
 |2| Smart Contrace(chaincode)| dev-bsx-chaincode
 
