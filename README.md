@@ -86,6 +86,6 @@ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.exa
 
 
 
-
-
-
+| # | node | IP & Port | hostname |
+| ------ | ------ | ------ | ------ |
+| 1 | Orderer | x.x.x.x:7050 | dev.alpha.orderer.blusoftx.com
