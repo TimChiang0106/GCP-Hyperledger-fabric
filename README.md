@@ -88,15 +88,15 @@ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.exa
 
 | # | node | IP & Port | hostname |
 | ------ | ------ | ------ | ------ |
-| 1 | Orderer | x.x.x.x:7050 | dev.alpha.orderer.bluesoftx.com
-| 2 | Orderer | x.x.x.x:8050 | dev.beta.orderer.bluesoftx.com
-| 3 | Orderer | x.x.x.x:9050 | dev.gamma.orderer.bluesoftx.com
-| 4 | bluesoftx | x.x.x.x:11051 | org1.bluesoftx.com
-| 4 | bluesoftx | x.x.x.x:12051 | org2.bluesoftx.com
+| 1 | Orderer | x.x.x.x:7050 | dev.alpha.orderer.com
+| 2 | Orderer | x.x.x.x:8050 | dev.beta.orderer.com
+| 3 | Orderer | x.x.x.x:9050 | dev.gamma.orderer.com
+| 4 | bluesoftx | x.x.x.x:11051 | org1.com
+| 4 | bluesoftx | x.x.x.x:12051 | org2.com
 
 | # | Parameters | |
 | ------ | ------ | ------|
-|1| Channel| bluesoftxchannel
+|1| Channel| channel1
 |2| Smart Contrace(chaincode)| dev-bsx-chaincode
 
 
