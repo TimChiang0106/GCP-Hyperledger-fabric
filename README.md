@@ -91,8 +91,8 @@ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.exa
 | 1 | Orderer | x.x.x.x:7050 | dev.alpha.orderer.com
 | 2 | Orderer | x.x.x.x:8050 | dev.beta.orderer.com
 | 3 | Orderer | x.x.x.x:9050 | dev.gamma.orderer.com
-| 4 | bluesoftx | x.x.x.x:11051 | org1.com
-| 4 | bluesoftx | x.x.x.x:12051 | org2.com
+| 4 | Org | x.x.x.x:11051 | org1.com
+| 4 | Org | x.x.x.x:12051 | org2.com
 
 | # | Parameters | |
 | ------ | ------ | ------|
