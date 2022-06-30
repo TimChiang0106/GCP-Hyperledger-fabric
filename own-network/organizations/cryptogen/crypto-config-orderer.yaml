@@ -17,6 +17,6 @@ OrdererOrgs:
     # "Specs" - See PeerOrgs for complete description
     # ---------------------------------------------------------------------------
     Specs:
-      - Hostname: blockchain
+      - Hostname: orderer
         SANS:
           - localhost

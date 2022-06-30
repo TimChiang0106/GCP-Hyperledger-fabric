@@ -57,8 +57,14 @@ NONWORKING_VERSIONS="^1\.0\. ^1\.1\. ^1\.2\. ^1\.3\. ^1\.4\."
 function checkPrereqs() {
   ## Check if your have cloned the peer binaries and configuration files.
   peer version > /dev/null 2>&1
+  if [[ $? -ne 0 ]]; then
+    errorln "Command 'peer' not found"
+    errorln "Please export path or run the install.sh"
+    exit 1
+  fi
 
-  if [[ $? -ne 0 || ! -d "../config" ]]; then
+
+  if [[ ! -d "../config" ]]; then
     errorln "Peer binary and configuration files not found.."
     errorln
     errorln "Follow the instructions in the Fabric docs to install the Fabric Binaries:"
