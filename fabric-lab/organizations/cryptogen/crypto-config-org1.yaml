@@ -1,3 +1,12 @@
+OrdererOrgs:
+  - Name: Orderer
+    Domain: cloudmile.com
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: orderer
+        SANS:
+          - "*"
+          - "10.10.0.16"
 PeerOrgs:
   - Name: Org1
     Domain: org1.cloudmile.com
@@ -5,6 +14,7 @@ PeerOrgs:
     Template:
       Count: 2
       SANS:
-        - localhost
+        - "*"
+        - "10.10.0.9"
     Users:
-      Count: 2
+      Count: 1

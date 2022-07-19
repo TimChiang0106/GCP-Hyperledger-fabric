@@ -11,9 +11,9 @@ networks:
 
 services:
 
-  alpha.orderer.cloudmile.com:
+  orderer.cloudmile.com:
 
-    container_name: alpha.orderer.cloudmile.com
+    container_name: orderer.cloudmile.com
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
@@ -45,10 +45,13 @@ services:
     working_dir: /root
     command: orderer
     volumes:
-      - ../crypto-config/ordererOrganizations/cloudmile.com/orderers/alpha.orderer.cloudmile.com/msp:/var/hyperledger/orderer/msp
-      - ../crypto-config/ordererOrganizations/cloudmile.com/orderers/alpha.orderer.cloudmile.com/tls/:/var/hyperledger/orderer/tls
-      - ../crypto-config/ordererOrganizations/cloudmile.com/users/Admin@cloudmile.com/:/var/hyperledger/orderer/admin
-      - ../organizations-production/alpha.orderer.cloudmile.com:/var/hyperledger/production/orderer
+#      - ../crypto-config/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/msp:/var/hyperledger/orderer/msp
+#      - ../crypto-config/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/:/var/hyperledger/orderer/tls
+#      - ../crypto-config/ordererOrganizations/cloudmile.com/users/Admin@cloudmile.com/:/var/hyperledger/orderer/admin
+#      - ../organizations-production/orderer.cloudmile.com:/var/hyperledger/production/orderer
+      - ../organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/msp:/var/hyperledger/orderer/msp
+      - ../organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/:/var/hyperledger/orderer/tls
+      - orderer.cloudmile.com:/var/hyperledger/production/orderer
     ports:
       - 7050:7050
       - 7053:7053

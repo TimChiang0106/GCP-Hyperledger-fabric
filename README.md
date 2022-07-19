@@ -82,18 +82,73 @@ There are three files what we need to use.
 2. docker-compose-test-net.yaml
 3. core.yaml
 
+
+Create channel
+```
+configtxgen -profile TwoOrgsApplicationGenesis -outputBlock ./channel-artifacts/mychannel.block -channelID mychannel
+osnadmin channel join --channelID mychannel --config-block ./channel-artifacts/mychannel.block -o orderer.cloudmile.com:7053 --ca-file /root/a-fabric/organizations/ordererOrganizations/cloudmile.com/tlsca/tlsca.cloudmile.com-cert.pem --client-cert /root/a-fabric/organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/server.crt --client-key /root/a-fabric/organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/server.key
+peer channel join -b ./channel-artifacts/mychannel.block
+
+#peer channel fetch config config_block.pb -o orderer.cloudmile.com:7050 --ordererTLSHostnameOverride orderer.cloudmile.com -c mychannel-1 --tls --cafile $ORDERER_CA
+#configtxlator proto_decode --input config_block.pb --type common.Block --output config_block.json
+#jq '.channel_group.groups.Application.groups.'${CORE_PEER_LOCALMSPID}'.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "'$HOST'","port": '$PORT'}]},"version": "0"}}' ${CORE_PEER_LOCALMSPID}config.json >$
+```
+Deploy chaincode
+```
+peer lifecycle chaincode package basic.tar.gz --path /root/a-fabric/chaincode --lang node --label test
+peer lifecycle chaincode install basic.tar.gz
+peer lifecycle chaincode approveformyorg  -o orderer.cloudmile.com:7050 --ordererTLSHostnameOverride orderer.cloudmile.com --tls --cafile $ORDERER_CA -C mychannel-1 --name basic --version 1.0 --package-id test:c553bd324bab065ef0efa2a63c543abde0db0892245074bf04f2f05347c12735 --sequence 1
+peer lifecycle chaincode checkcommitreadiness -C mychannel-1 --name basic --version 1.0 --sequence 1
+peer lifecycle chaincode commit -o orderer.cloudmile.com:7050 --ordererTLSHostnameOverride orderer.cloudmile.com --tls --cafile $ORDERER_CA --channelID mychannel-1 --name basic  --version 1.0 --sequence 1
+peer lifecycle chaincode querycommitted -C mychannel-1 --name basic 
+```
+
+Process with Ledger
+```
+peer chaincode invoke -o orderer.cloudmile.com:7050 --ordererTLSHostnameOverride orderer.cloudmile.com --tls --cafile $ORDERER_CA -C mychannel-1 -n basic --peerAddresses localhost:7051 --tlsRootCertFiles organizations/peerOrganizations/org1.cloudmile.com/peers/peer0.org1.cloudmile.com/tls/ca.crt -c '{"function":"InitLedger","Args":[]}'
+peer chaincode query -C mychannel-1 -n basic -c '{"Args":["GetAllAssets"]}'
+```
+
+Env
+```
+export ORDERER_CA=${PWD}/organizations/ordererOrganizations/cloudmile.com/tlsca/tlsca.cloudmile.com-cert.pem
+```
+
 #### Background
 Two peers in same org.
 
+
+
 ----
-Facing What Error now? 2022/07/15
+Facing What Error?
 
 ```
 Failed obtaining connection for peer0.org1.cloudmile.com:7051, PKIid:ab65a72330b964ef2c1555e83eb48cd86e9a06f6ec60a44e626ebc1d7016408d reason: context deadline exceeded
-
+```
+```
+ERROR: manifest for hyperledger/fabric-orderer:latest not found
 ```
 
+```
+ERROR: Named volume "orderer.cloudmile.com:/var/hyperledger/production/orderer:rw" is used in service "orderer.cloudmile.com" but no declaration was found in the volumes section.
+```
+Docker-compose.yaml add ```volumes:```
 
+```
+Cannot run peer because cannot init crypto, specified path "" does not exist or cannot be accessed: stat : no such file or directory
+```
+Export env var.
+```
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.cloudmile.com/peers/peer1.org1.cloudmile.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.cloudmile.com/users/Admin@org1.cloudmile.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+```
+
+```
+Server TLS handshake
+```
 
 
 
