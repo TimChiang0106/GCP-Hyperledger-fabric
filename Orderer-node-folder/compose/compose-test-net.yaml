@@ -1,0 +1,83 @@
+# Tim
+#
+#
+#
+version: '3.7'
+volumes:
+  orderer.cloudmile.com:
+
+networks:
+  cloudmile:
+    name: fabric_test
+
+services:
+
+  orderer.cloudmile.com:
+
+    container_name: orderer.cloudmile.com
+    image: hyperledger/fabric-orderer:latest
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=7050
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      # enabled TLS
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_GENERAL_BOOTSTRAPMETHOD=none
+      - ORDERER_CHANNELPARTICIPATION_ENABLED=true
+      - ORDERER_ADMIN_TLS_ENABLED=true
+      - ORDERER_ADMIN_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7053
+      # Operations Service
+      - ORDERER_OPERATIONS_LISTENADDRESS=0.0.0.0:9443
+      - ORDERER_METRICS_PROVIDER=prometheus
+    working_dir: /root
+    command: orderer
+    volumes:
+#      - ../crypto-config/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/msp:/var/hyperledger/orderer/msp
+#      - ../crypto-config/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/:/var/hyperledger/orderer/tls
+#      - ../crypto-config/ordererOrganizations/cloudmile.com/users/Admin@cloudmile.com/:/var/hyperledger/orderer/admin
+#      - ../organizations-production/orderer.cloudmile.com:/var/hyperledger/production/orderer
+      - ../organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/msp:/var/hyperledger/orderer/msp
+      - ../organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/:/var/hyperledger/orderer/tls
+      - orderer.cloudmile.com:/var/hyperledger/production/orderer
+    ports:
+      - 7050:7050
+      - 7053:7053
+      - 9443:9443
+    networks:
+      - cloudmile
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools:2.4.4
+    labels:
+      service: hyperledger-fabric
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - FABRIC_LOGGING_SPEC=INFO
+      - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
+      #- FABRIC_LOGGING_SPEC=DEBUG
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+      - ../organizations:/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations
+      - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+    depends_on:
+      - orderer.cloudmile.com
+    networks:
+      - cloudmile
+

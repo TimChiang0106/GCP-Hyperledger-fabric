@@ -77,48 +77,113 @@ First of all, let's look at network.sh, you can see the mark in line 13, as the 
 the cryptogen command is not recommendation in the operation of a production network.
 But in this lab, the certification was created by this command.
 
-There are three files what we need to use.
-1. compose-test-net.yaml
-2. docker-compose-test-net.yaml
-3. core.yaml
+#### Background
+Two peers in org1.
 
-
-Create channel
+Here is the tree of structure for peer node
 ```
+.
+├── chaincode
+│   ├── index.js
+│   ├── lib
+│   │   └── assetTransfer.js
+│   ├── package.json
+│   └── test
+│       └── assetTransfer.test.js
+├── channel-artifacts
+│   └── mychannel.block
+├── compose
+│   ├── compose-test-net.yaml
+│   └── docker
+│       ├── docker-compose-test-net.yaml
+│       └── peercfg
+│           └── core.yaml
+├── config
+│   └── core.yaml
+├── configtx
+│   └── configtx.yaml
+├── createChannel.sh
+├── network.sh
+└── organizations
+    ├── cryptogen
+    │   └── crypto-config-orderer.yaml
+    ├── ordererOrganizations
+    │   └── cloudmile.com
+    │       ├── ca
+    │       ├── msp
+    │       ├── orderers
+    │       │   └── orderer.cloudmile.com
+    │       ├── tlsca
+    │       └── users
+    │           └── Admin@cloudmile.com
+    └── peerOrganizations
+        └── org1.cloudmile.com
+            ├── ca
+            ├── msp
+            ├── peers
+            │   ├── peer0.org1.cloudmile.com
+            │   └── peer1.org1.cloudmile.com
+            ├── tlsca
+            └── users
+                ├── Admin@org1.cloudmile.com
+                └── User1@org1.cloudmile.com
+```
+
+Generate TLS with cryptogen and each VMs must have same key.
+```
+cryptogen generate --config=./organizations/cryptogen/crypto-config-orderer.yaml --output="organizations"
+```
+Generate mychannel.block with configtxgen for channel.
+``
 configtxgen -profile TwoOrgsApplicationGenesis -outputBlock ./channel-artifacts/mychannel.block -channelID mychannel
+``
+
+Create channel, only create one time with osnadmin, rest of VMs only need to run peer channel join. 
+```
 osnadmin channel join --channelID mychannel --config-block ./channel-artifacts/mychannel.block -o orderer.cloudmile.com:7053 --ca-file /root/a-fabric/organizations/ordererOrganizations/cloudmile.com/tlsca/tlsca.cloudmile.com-cert.pem --client-cert /root/a-fabric/organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/server.crt --client-key /root/a-fabric/organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/server.key
 peer channel join -b ./channel-artifacts/mychannel.block
 
-#peer channel fetch config config_block.pb -o orderer.cloudmile.com:7050 --ordererTLSHostnameOverride orderer.cloudmile.com -c mychannel-1 --tls --cafile $ORDERER_CA
+#peer channel fetch config config_block.pb -o orderer.cloudmile.com:7050 --ordererTLSHostnameOverride orderer.cloudmile.com -c mychannel --tls --cafile $ORDERER_CA
 #configtxlator proto_decode --input config_block.pb --type common.Block --output config_block.json
 #jq '.channel_group.groups.Application.groups.'${CORE_PEER_LOCALMSPID}'.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "'$HOST'","port": '$PORT'}]},"version": "0"}}' ${CORE_PEER_LOCALMSPID}config.json >$
 ```
-Deploy chaincode
-```
-peer lifecycle chaincode package basic.tar.gz --path /root/a-fabric/chaincode --lang node --label test
-peer lifecycle chaincode install basic.tar.gz
-peer lifecycle chaincode approveformyorg  -o orderer.cloudmile.com:7050 --ordererTLSHostnameOverride orderer.cloudmile.com --tls --cafile $ORDERER_CA -C mychannel-1 --name basic --version 1.0 --package-id test:c553bd324bab065ef0efa2a63c543abde0db0892245074bf04f2f05347c12735 --sequence 1
-peer lifecycle chaincode checkcommitreadiness -C mychannel-1 --name basic --version 1.0 --sequence 1
-peer lifecycle chaincode commit -o orderer.cloudmile.com:7050 --ordererTLSHostnameOverride orderer.cloudmile.com --tls --cafile $ORDERER_CA --channelID mychannel-1 --name basic  --version 1.0 --sequence 1
-peer lifecycle chaincode querycommitted -C mychannel-1 --name basic 
-```
 
-Process with Ledger
-```
-peer chaincode invoke -o orderer.cloudmile.com:7050 --ordererTLSHostnameOverride orderer.cloudmile.com --tls --cafile $ORDERER_CA -C mychannel-1 -n basic --peerAddresses localhost:7051 --tlsRootCertFiles organizations/peerOrganizations/org1.cloudmile.com/peers/peer0.org1.cloudmile.com/tls/ca.crt -c '{"function":"InitLedger","Args":[]}'
-peer chaincode query -C mychannel-1 -n basic -c '{"Args":["GetAllAssets"]}'
-```
 
 Env
 ```
 export ORDERER_CA=${PWD}/organizations/ordererOrganizations/cloudmile.com/tlsca/tlsca.cloudmile.com-cert.pem
 ```
 
-#### Background
-Two peers in same org.
+Deploy chaincode,  Noted: --package-id 
+```
+peer lifecycle chaincode package basic.tar.gz --path /root/a-fabric/chaincode --lang node --label test
+peer lifecycle chaincode install basic.tar.gz
+peer lifecycle chaincode approveformyorg  -o orderer.cloudmile.com:7050 --ordererTLSHostnameOverride orderer.cloudmile.com --tls --cafile $ORDERER_CA -C mychannel --name basic --version 1.0 --package-id test:086a89c94b4bdd639cb1c21942cb383186d5fd27bbc823c9b2fa3dab8699b969 --sequence 1
+peer lifecycle chaincode checkcommitreadiness -C mychannel --name basic --version 1.0 --sequence 1
+peer lifecycle chaincode commit -o orderer.cloudmile.com:7050 --ordererTLSHostnameOverride orderer.cloudmile.com --tls --cafile $ORDERER_CA --channelID mychannel --name basic  --version 1.0 --sequence 1
+peer lifecycle chaincode querycommitted -C mychannel --name basic 
+```
 
+Process with Ledger
+```
+peer chaincode invoke -o orderer.cloudmile.com:7050 --ordererTLSHostnameOverride orderer.cloudmile.com --tls --cafile $ORDERER_CA -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles organizations/peerOrganizations/org1.cloudmile.com/peers/peer0.org1.cloudmile.com/tls/ca.crt -c '{"function":"InitLedger","Args":[]}'
+peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
+```
 
+Success
 
+### Peers
+
+VM-1
+```
+root@fabric-dev-peer-1:~/a-fabric# peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
+[{"AppraisedValue":300,"Color":"blue","ID":"asset1","Owner":"Tomoko","Size":5,"docType":"asset"},{"AppraisedValue":400,"Color":"red","ID":"asset2","Owner":"Brad","Size":5,"docType":"asset"},{"AppraisedValue":500,"Color":"green","ID":"asset3","Owner":"Jin Soo","Size":10,"docType":"asset"},{"AppraisedValue":600,"Color":"yellow","ID":"asset4","Owner":"Max","Size":10,"docType":"asset"},{"AppraisedValue":700,"Color":"black","ID":"asset5","Owner":"Adriana","Size":15,"docType":"asset"},{"AppraisedValue":800,"Color":"white","ID":"asset6","Owner":"Michel","Size":15,"docType":"asset"}]
+```
+VM-2
+```
+root@fabric-dev-peer-2:~/a-fabric# peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
+[{"AppraisedValue":300,"Color":"blue","ID":"asset1","Owner":"Tomoko","Size":5,"docType":"asset"},{"AppraisedValue":400,"Color":"red","ID":"asset2","Owner":"Brad","Size":5,"docType":"asset"},{"AppraisedValue":500,"Color":"green","ID":"asset3","Owner":"Jin Soo","Size":10,"docType":"asset"},{"AppraisedValue":600,"Color":"yellow","ID":"asset4","Owner":"Max","Size":10,"docType":"asset"},{"AppraisedValue":700,"Color":"black","ID":"asset5","Owner":"Adriana","Size":15,"docType":"asset"},{"AppraisedValue":800,"Color":"white","ID":"asset6","Owner":"Michel","Size":15,"docType":"asset"}]
+```
 ----
 Facing What Error?
 
@@ -149,6 +214,8 @@ export CORE_PEER_ADDRESS=localhost:7051
 ```
 Server TLS handshake
 ```
+
+
 
 
 
