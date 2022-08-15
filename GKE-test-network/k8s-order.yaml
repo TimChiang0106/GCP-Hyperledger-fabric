@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: orderer
+  labels:
+    app: orderer
+spec:
+  serviceName: orderer
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orderer
+  template:
+    metadata:
+      labels:
+        app: orderer
+    spec:
+      containers:
+      - name: orderer
+        image: hyperledger/fabric-orderer:2.4.4
+        env:
+          - name: FABRIC_LOGGING_SPEC
+            value: INFO
+          - name: ORDERER_GENERAL_LISTENADDRESS
+            value: 0.0.0.0
+          - name: ORDERER_GENERAL_LISTENPORT
+            value: "30750"
+          - name: ORDERER_GENERAL_LOCALMSPID
+            value: OrdererMSP
+          - name: ORDERER_GENERAL_LOCALMSPDIR
+            value: /var/hyperledger/organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/msp
+          - name: ORDERER_GENERAL_TLS_PRIVATEKEY
+            value: /var/hyperledger/organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/server.key
+          - name: ORDERER_GENERAL_TLS_CERTIFICATE
+            value: /var/hyperledger/organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/server.crt
+          - name: ORDERER_GENERAL_TLS_ROOTCAS
+            value: /var/hyperledger/organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/ca.crt
+          - name: ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE
+            value: /var/hyperledger/organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/server.crt
+          - name: ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY
+            value: /var/hyperledger/organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/server.key
+          - name: ORDERER_GENERAL_CLUSTER_ROOTCAS
+            value: /var/hyperledger/organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/ca.crt
+          - name: ORDERER_GENERAL_BOOTSTRAPMETHOD
+            value: 'none'
+          - name: ORDERER_ADMIN_TLS_ENABLED
+            value: 'true'
+          - name: ORDERER_GENERAL_TLS_ENABLED
+            value: 'true'
+          - name: ORDERER_CHANNELPARTICIPATION_ENABLED
+            value: 'true'
+          - name: ORDERER_ADMIN_TLS_CERTIFICATE
+            value: /var/hyperledger/organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/server.crt
+          - name: ORDERER_ADMIN_TLS_PRIVATEKEY
+            value: /var/hyperledger/organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/server.key
+          - name: ORDERER_ADMIN_TLS_ROOTCAS
+            value: /var/hyperledger/organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/ca.crt
+          - name: ORDERER_ADMIN_TLS_CLIENTROOTCAS
+            value: /var/hyperledger/organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/ca.crt
+          - name: ORDERER_ADMIN_LISTENADDRESS
+            value: 0.0.0.0:30753
+          - name: ORDERER_OPERATIONS_LISTENADDRESS
+            value: 0.0.0.0:30444
+          - name: ORDERER_METRICS_PROVIDER
+            value: prometheus
+        volumeMounts:
+        - name: all-tls
+          mountPath: /var/hyperledger/organizations
+        - name: dockersock
+          mountPath: /var/run/docker.sock
+      volumes:
+      - name: all-tls
+        hostPath:
+          path: /home/tim_chiang/organizations
+      - name: dockersock
+        hostPath:
+          path: /var/run/docker.sock
+  volumeClaimTemplates:
+  - metadata:
+      name: ordererer
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: general
+      resources:
+        requests:
+          storage: 1Gi
+
+---
+# Expose the port 7051 as ClusterIP
+apiVersion: v1
+kind: Service
+metadata:
+  name: orderer-clusterip
+spec:
+  selector:
+    app: orderer
+  ports:
+    - name: orderer-ip-clusterip
+      port: 30750
+    - name: orderer-operation-clusterip
+      port: 30444
+    - name: orderer-chaincode-clusterip
+      port: 30753
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orderer-nodeport
+spec:
+  selector:
+    app: orderer
+  ports:
+    - name: orderer-ip
+      port: 30750
+      nodePort: 30750
+    - name: orderer-operation
+      port: 30444
+      nodePort: 30444
+    - name: orderer-chaincode
+      port: 30753
+      nodePort: 30753
+  type: NodePort

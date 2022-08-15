@@ -46,10 +46,6 @@ services:
     working_dir: /root
     command: orderer
     volumes:
-#      - ../crypto-config/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/msp:/var/hyperledger/orderer/msp
-#      - ../crypto-config/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/:/var/hyperledger/orderer/tls
-#      - ../crypto-config/ordererOrganizations/cloudmile.com/users/Admin@cloudmile.com/:/var/hyperledger/orderer/admin
-#      - ../organizations-production/orderer.cloudmile.com:/var/hyperledger/production/orderer
       - ../organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/msp:/var/hyperledger/orderer/msp
       - ../organizations/ordererOrganizations/cloudmile.com/orderers/orderer.cloudmile.com/tls/:/var/hyperledger/orderer/tls
       - orderer.cloudmile.com:/var/hyperledger/production/orderer

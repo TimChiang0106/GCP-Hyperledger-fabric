@@ -184,12 +184,24 @@ VM-2
 root@fabric-dev-peer-2:~/a-fabric# peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
 [{"AppraisedValue":300,"Color":"blue","ID":"asset1","Owner":"Tomoko","Size":5,"docType":"asset"},{"AppraisedValue":400,"Color":"red","ID":"asset2","Owner":"Brad","Size":5,"docType":"asset"},{"AppraisedValue":500,"Color":"green","ID":"asset3","Owner":"Jin Soo","Size":10,"docType":"asset"},{"AppraisedValue":600,"Color":"yellow","ID":"asset4","Owner":"Max","Size":10,"docType":"asset"},{"AppraisedValue":700,"Color":"black","ID":"asset5","Owner":"Adriana","Size":15,"docType":"asset"},{"AppraisedValue":800,"Color":"white","ID":"asset6","Owner":"Michel","Size":15,"docType":"asset"}]
 ```
+
+-----
+
+
+## On GKE
+
+```
+kubectl exec peer0-org1-cloudmile-com-0 -c peer0-org1 -it  sh
+```
+
+ 
 ----
 Facing What Error?
 
 ```
 Failed obtaining connection for peer0.org1.cloudmile.com:7051, PKIid:ab65a72330b964ef2c1555e83eb48cd86e9a06f6ec60a44e626ebc1d7016408d reason: context deadline exceeded
 ```
+
 ```
 ERROR: manifest for hyperledger/fabric-orderer:latest not found
 ```
@@ -210,9 +222,24 @@ export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.c
 export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.cloudmile.com/users/Admin@org1.cloudmile.com/msp
 export CORE_PEER_ADDRESS=localhost:7051
 ```
+1.
+```
+ Bad configuration detected: Received AliveMessage from a peer with the same PKI-ID as myself: tag:EMPTY alive_msg:
+```
+You are using the same certificate for two different peers and it is forbidden
+2.
+```
+Error: proposal failed (err: bad proposal response 500: access denied for [JoinChain][mychannel]: [Failed verifying that proposal's creator satisfies local MSP principal during channelless check policy with policy [Admins]: [The identity is not an admin under this MSP [Org1MSP]: The identity does not contain OU [ADMIN], MSP: [Org1MSP]]])
+```
+MSP is not addressed.
+export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/organizations/peerOrganizations/org1.cloudmile.com/users/Admin@org1.cloudmile.com/msp
 
 ```
-Server TLS handshake
+Error: timed out waiting for txid on all peers
+```
+
+```
+rror: failed to retrieve endorser client for approveformyorg: endorser client failed to connect to peer0.org1.cloudmile.com:30751: failed to create new connection: context deadline exceeded
 ```
 
 
