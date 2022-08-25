@@ -61,7 +61,7 @@ class AssetTransfer extends Contract {
 
         for (const asset of assets) {
             asset.docType = 'asset';
-            // example of how to write to world state deterministically
+            // example.log of how to write to world state deterministically
             // use convetion of alphabetic order
             // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
             // when retrieving data, in any lang, the order of data will be the same and consequently also the corresonding hash

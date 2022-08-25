@@ -280,15 +280,15 @@ chaincode:
     id:
         path:
         name:
-    builder: $(DOCKER_NS)/fabric-ccenv:$(TWO_DIGIT_VERSION)
+    builder: $(DOCKER_NS)/fabric-gce-ccenv:$(TWO_DIGIT_VERSION)
     pull: false
     golang:
-        runtime: $(DOCKER_NS)/fabric-baseos:$(TWO_DIGIT_VERSION)
+        runtime: $(DOCKER_NS)/fabric-gce-baseos:$(TWO_DIGIT_VERSION)
         dynamicLink: false
     java:
-        runtime: $(DOCKER_NS)/fabric-javaenv:$(TWO_DIGIT_VERSION)
+        runtime: $(DOCKER_NS)/fabric-gce-javaenv:$(TWO_DIGIT_VERSION)
     node:
-        runtime: $(DOCKER_NS)/fabric-nodeenv:$(TWO_DIGIT_VERSION)
+        runtime: $(DOCKER_NS)/fabric-gce-nodeenv:$(TWO_DIGIT_VERSION)
     externalBuilders:
        - name: ccaas_builder
          path: /opt/hyperledger/ccaas_builder

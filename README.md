@@ -193,8 +193,16 @@ root@fabric-dev-peer-2:~/a-fabric# peer chaincode query -C mychannel -n basic -c
 ```
 kubectl exec peer0-org1-cloudmile-com-0 -c peer0-org1 -it  sh
 ```
+if you want run ```peer channel join```
+ need export env var
+```
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+```
 
- 
 ----
 Facing What Error?
 
@@ -232,7 +240,9 @@ You are using the same certificate for two different peers and it is forbidden
 Error: proposal failed (err: bad proposal response 500: access denied for [JoinChain][mychannel]: [Failed verifying that proposal's creator satisfies local MSP principal during channelless check policy with policy [Admins]: [The identity is not an admin under this MSP [Org1MSP]: The identity does not contain OU [ADMIN], MSP: [Org1MSP]]])
 ```
 MSP is not addressed.
+```
 export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/organizations/peerOrganizations/org1.cloudmile.com/users/Admin@org1.cloudmile.com/msp
+```
 
 ```
 Error: timed out waiting for txid on all peers

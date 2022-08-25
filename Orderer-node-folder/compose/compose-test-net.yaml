@@ -17,7 +17,7 @@ services:
     container_name: orderer.cloudmile.com
     image: hyperledger/fabric-orderer:latest
     labels:
-      service: hyperledger-fabric
+      service: hyperledger-fabric-gce
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -59,7 +59,7 @@ services:
     container_name: cli
     image: hyperledger/fabric-tools:2.4.4
     labels:
-      service: hyperledger-fabric
+      service: hyperledger-fabric-gce
     tty: true
     stdin_open: true
     environment:
@@ -67,11 +67,11 @@ services:
       - FABRIC_LOGGING_SPEC=INFO
       - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
       #- FABRIC_LOGGING_SPEC=DEBUG
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric-gce/peer
     command: /bin/bash
     volumes:
-      - ../organizations:/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations
-      - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+      - ../organizations:/opt/gopath/src/github.com/hyperledger/fabric-gce/peer/organizations
+      - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric-gce/peer/scripts/
     depends_on:
       - orderer.cloudmile.com
     networks:

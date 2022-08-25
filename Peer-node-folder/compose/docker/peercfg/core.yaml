@@ -330,7 +330,7 @@ peer:
             name: DefaultValidation
             library:
 
-    #    library: /etc/hyperledger/fabric/plugin/escc.so
+    #    library: /etc/hyperledger/fabric-gce/plugin/escc.so
     # Number of goroutines that will execute transaction validation in parallel.
     # By default, the peer chooses the number of CPUs on the machine. Set this
     # variable to override that choice.
@@ -429,7 +429,7 @@ chaincode:
         name:
 
     # Generic builder environment, suitable for most chaincode types
-    builder: $(DOCKER_NS)/fabric-ccenv:$(TWO_DIGIT_VERSION)
+    builder: $(DOCKER_NS)/fabric-gce-ccenv:$(TWO_DIGIT_VERSION)
 
     # Enables/disables force pulling of the base docker images (listed below)
     # during user chaincode instantiation.
@@ -438,7 +438,7 @@ chaincode:
 
     golang:
         # golang will never need more than baseos
-        runtime: $(DOCKER_NS)/fabric-baseos:$(TWO_DIGIT_VERSION)
+        runtime: $(DOCKER_NS)/fabric-gce-baseos:$(TWO_DIGIT_VERSION)
 
         # whether or not golang chaincode should be linked dynamically
         dynamicLink: false
@@ -448,11 +448,11 @@ chaincode:
         # tools added for java shim layer packaging.
         # This image is packed with shim layer libraries that are necessary
         # for Java chaincode runtime.
-        runtime: $(DOCKER_NS)/fabric-javaenv:$(TWO_DIGIT_VERSION)
+        runtime: $(DOCKER_NS)/fabric-gce-javaenv:$(TWO_DIGIT_VERSION)
 
     node:
         # This is an image based on node:$(NODE_VER)-alpine
-        runtime: $(DOCKER_NS)/fabric-nodeenv:$(TWO_DIGIT_VERSION)
+        runtime: $(DOCKER_NS)/fabric-gce-nodeenv:$(TWO_DIGIT_VERSION)
 
     # List of directories to treat as external builders and launchers for
     # chaincode. The external builder detection processing will iterate over the
