@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ccenv
+  labels:
+    app: ccenv
+spec:
+  serviceName: ccenv
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ccenv
+  template:
+    metadata:
+      labels:
+        app: ccenv
+    spec:
+      hostAliases:
+      - ip: "10.212.1.106"
+        hostnames:
+          - "peer0.org1.cloudmile.com"
+      containers:
+      - name: ccenv1
+        image: hyperledger/fabric-gce-ccenv:2.4
+        env:
+          - name: CORE_PEER_ADDRESS
+            value: peer0.org1.cloudmile.com:7051
+        volumeMounts:
+        - name: chaincode-folder
+          mountPath: /etc/hyperledger/chaincode
+        - name: dockersock
+          mountPath: /var/run/docker.sock
+      volumes:
+      - name: chaincode-folder
+        hostPath:
+          path: /home/tim_chiang/chaincode/
+      - name: dockersock
+        hostPath:
+          path: /var/run/docker.sock
+  volumeClaimTemplates:
+  - metadata:
+      name: peer1-ledger
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: general
+      resources:
+        requests:
+          storage: 1Gi
+
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: peer1-org1-clusterip
+#spec:
+#    app: peer1-org1
+#  ports:
+#    - name: peer
+#      port: 30951
+#  type: ClusterIP
+#
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: peer1-org1-nodeport
+#spec:
+#  selector:
+#    app: peer1-org1
+#  ports:
+#    - name: peer1-org1-ip
+#      port: 30951
+#      nodePort: 30951
+#  type: NodePort

@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tools
+  labels:
+    app: tools
+spec:
+  serviceName: tools
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tools
+  template:
+    metadata:
+      labels:
+        app: tools
+    spec:
+      containers:
+      - name: tools
+        image: hyperledger/fabric-gce-tools:2.4.4
+        command: ["/bin/bash"]
+        env:
+          - name: GOPATH
+            value: /opt/gopath
+          - name: FABRIC_LOGGING_SPEC
+            value: INFO
+          - name: FABRIC_CFG_PATH
+            value: /etc/hyperledger/peercfg
+        volumeMounts:
+        - name: dockersock
+          mountPath: /var/run/docker.sock
+        - name:  all-org
+          mountPath:  /opt/gopath/src/github.com/hyperledger/fabric-gce/peer/organizations
+        workingDir: /opt/gopath/src/github.com/hyperledger/fabric-gce/peer
+      volumes:
+      - name: all-org
+        hostPath:
+          path: /home/tim_chiang/organizations/
+      - name: dockersock
+        hostPath:
+          path: /var/run/docker.sock
+
+  volumeClaimTemplates:
+  - metadata:
+      name: tools
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: general
+      resources:
+        requests:
+          storage: 1Gi
+
+#---
+## Expose the port 7051 as ClusterIP
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: orderer-clusterip
+#spec:
+#  selector:
+#    app: orderer
+#  ports:
+#    - name: orderer-ip-clusterip
+#      port: 30750
+#    - name: orderer-operation-clusterip
+#      port: 30444
+#    - name: orderer-chaincode-clusterip
+#      port: 30753
+#  type: ClusterIP
+#
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: orderer-nodeport
+#spec:
+#  selector:
+#    app: orderer
+#  ports:
+#    - name: orderer-ip
+#      port: 30750
+#      nodePort: 30750
+#    - name: orderer-operation
+#      port: 30444
+#      nodePort: 30444
+#    - name: orderer-chaincode
+#      port: 30753
+#      nodePort: 30753
+#  type: NodePort
